@@ -1,44 +1,29 @@
 # radian-mesh-failure-forge
 
-`radian-mesh-failure-forge` is a SQL project for Distributed systems. It turns implement an SQL distributed systems project for failure resource planning, using capacity fixtures and allocation and spill reports into a small local model with readable fixtures and a direct verification command.
+`radian-mesh-failure-forge` explores distributed systems with a small SQL codebase and local fixtures. The technical goal is to implement an SQL distributed systems project for failure resource planning, using capacity fixtures and allocation and spill reports.
 
-## Reading Radian Mesh Failure Forge
+## Project Rationale
 
-Start with the README, then open `metadata/project.json` to check the constants behind the examples. After that, `fixtures/cases.csv` shows the compact path and `examples/extended_cases.csv` gives a wider look at the same rule.
+The project exists to keep a narrow engineering decision visible and testable. For this repo, that decision is how quorum health and replica lag should influence a review result.
 
-## Design Sketch
+## Radian Mesh Failure Forge Review Notes
 
-The project is organized around a compact model rather than a large framework. Inputs are scored, classified, and checked against golden fixtures. The constants live in code and are mirrored in metadata so documentation drift is easy to catch. The SQL project uses sqlite fixtures, views, and assertions to keep query behavior inspectable.
+`recovery` and `baseline` are the cases worth reading first. They show the optimistic and cautious ends of the fixture.
 
-## Purpose
+## Feature Set
 
-The goal is to capture the core behavior in code and make the surrounding assumptions obvious. A reader should be able to run the verifier, open the fixtures, and understand why each decision was made.
+- `fixtures/domain_review.csv` adds cases for quorum health and lease drift.
+- `metadata/domain-review.json` records the same cases in structured form.
+- `config/review-profile.json` captures the read order and the two review questions.
+- `examples/radian-mesh-failure-walkthrough.md` walks through the case spread.
+- The SQL code includes a review path for `membership churn` and `quorum health`.
+- `docs/field-notes.md` explains the strongest and weakest cases.
 
-## What It Does
+## Architecture
 
-- Uses fixture data to keep quorum behavior changes visible in code review.
-- Includes extended examples for lease timing, including `recovery` and `degraded`.
-- Documents message ordering tradeoffs in `docs/operations.md`.
-- Runs locally with a single verification command and no external credentials.
-- Stores project constants and verification metadata in `metadata/project.json`.
+The fixture data drives the tests. The code stays thin, while `metadata/domain-review.json` and `config/review-profile.json` explain what each case is meant to protect.
 
-## Fixture Notes
-
-`examples/extended_cases.csv` adds six named cases. I kept the names plain so failures are easy to read in a terminal: baseline, pressure, surge, degraded, recovery, and boundary.
-
-## Files Worth Reading
-
-- `tests`: verification harness
-- `fixtures`: compact golden scenarios
-- `examples`: expanded scenario set
-- `metadata`: project constants and verification metadata
-- `docs`: operations and extension notes
-- `scripts`: local verification and audit commands
-- `schema.sql`: sqlite schema and view definitions
-
-## Setup
-
-Clone the repository, enter the directory, and run the verifier. No database server, cloud account, or token is required.
+The SQL checks add a separate view over the domain review fixture.
 
 ## Usage
 
@@ -46,23 +31,10 @@ Clone the repository, enter the directory, and run the verifier. No database ser
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1
 ```
 
-This runs the language-level build or test path against the compact fixture set.
+## Test Command
 
-## Verification
+The verifier is intentionally local. It should fail if the fixture score math, lane assignment, or language-specific test drifts.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit.ps1
-```
+## Next Improvements
 
-The audit command checks repository structure and README constraints before it delegates to the verifier.
-
-## Limits
-
-This code is local-first. It makes no claim about deployed usage and avoids credentials, hosted state, and environment-specific setup.
-
-## Next Directions
-
-- Add malformed input fixtures so the failure path is as visible as the happy path.
-- Split the scoring constants into a typed configuration object and validate it before use.
-- Add a comparison mode that shows how decisions change when one signal is adjusted.
-- Add one more distributed systems fixture that focuses on a malformed or borderline input.
+The fixture set is small enough to audit by hand. The next useful expansion is malformed input coverage, not extra surface area.
