@@ -1,0 +1,17 @@
+{
+  "repo": "radian-mesh-failure-forge",
+  "thresholds": {
+    "signal": 3,
+    "slack": 2,
+    "confidence": 1,
+    "drag": 3,
+    "ship": 190,
+    "watch": 125
+  },
+  "terms": [
+    "quorum health",
+    "lease drift",
+    "replica lag",
+    "membership churn"
+  ]
+}
